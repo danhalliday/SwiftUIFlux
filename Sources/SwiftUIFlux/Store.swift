@@ -15,13 +15,13 @@ final public class Store<StoreState: FluxState>: ObservableObject {
 
     private var dispatchFunction: DispatchFunction!
     private let reducer: Reducer<StoreState>
-    
+
     public init(reducer: @escaping Reducer<StoreState>,
                 middleware: [Middleware<StoreState>] = [],
                 state: StoreState) {
         self.reducer = reducer
         self.state = state
-        
+
         var middleware = middleware
         middleware.append(asyncActionsMiddleware)
         self.dispatchFunction = middleware
@@ -38,10 +38,11 @@ final public class Store<StoreState: FluxState>: ObservableObject {
 
     public func dispatch(action: Action) {
         DispatchQueue.main.async {
+            self.objectWillChange.send()
             self.dispatchFunction(action)
         }
     }
-    
+
     private func _dispatch(action: Action) {
         state = reducer(state, action)
     }
